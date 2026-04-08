@@ -68,6 +68,13 @@ app.get("/", (req, res) => {
   res.send("Nexora Backend Running 🚀");
 });
 
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message: "Backend running",
+  });
+});
+
 // ✅ Error handling
 app.use(notFound);
 app.use(errorHandler);
