@@ -71,7 +71,7 @@ app.get("/", (req, res) => {
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "OK",
-    message: "Backend running",
+    message: "Nexora backend running",
   });
 });
 
