@@ -39,7 +39,7 @@ app.use("/api/orders/webhook", express.raw({ type: "application/json" }));
 // ✅ CORS (IMPORTANT FIX)
 app.use(
   cors({
-    origin: "https://nexora-frontend-sigma.vercel.app",
+    origin: true,
     credentials: true,
   })
 );
