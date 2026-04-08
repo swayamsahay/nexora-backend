@@ -21,6 +21,13 @@ import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 dotenv.config();
 
+const requiredEnvVars = ["MONGO_URI", "JWT_SECRET"];
+const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key]);
+
+if (missingEnvVars.length > 0) {
+  throw new Error(`Missing required environment variables: ${missingEnvVars.join(", ")}`);
+}
+
 // Connect DB
 connectDB();
 
@@ -32,7 +39,7 @@ app.use("/api/orders/webhook", express.raw({ type: "application/json" }));
 // ✅ CORS (IMPORTANT FIX)
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://nexora-frontend-sigma.vercel.app",
     credentials: true,
   })
 );
@@ -42,15 +49,6 @@ app.use(express.json());
 
 // ✅ Security / Logging
 app.use(morgan("dev"));
-app.use((req, res, next) => {
-  console.log(`[REQUEST] ${req.method} ${req.originalUrl}`);
-
-  if (req.body && Object.keys(req.body).length > 0) {
-    console.log("[REQUEST BODY]", req.body);
-  }
-
-  next();
-});
 app.use(apiRateLimiter);
 app.use(sanitizeInput);
 
@@ -69,10 +67,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    message: "Nexora backend running",
-  });
+  res.status(200).json({ status: "OK" });
 });
 
 // ✅ Error handling
