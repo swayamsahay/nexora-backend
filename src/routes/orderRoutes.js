@@ -8,12 +8,13 @@ import {
   verifyPayment,
 } from "../controllers/orderController.js";
 import { protect } from "../middleware/authMiddleware.js";
+import { validateCreateOrder } from "../middleware/validators/orderValidators.js";
 
 const router = express.Router();
 
 router.post("/webhook", handleWebhook);
 
-router.post("/", protect, createOrder);
+router.post("/", protect, validateCreateOrder, createOrder);
 router.get("/me", protect, getMyOrders);
 router.patch("/:orderId/cancel", protect, cancelOrder);
 router.post("/create-razorpay-order", protect, createRazorpayOrder);

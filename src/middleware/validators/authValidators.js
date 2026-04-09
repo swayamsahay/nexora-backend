@@ -12,6 +12,7 @@ const handleValidationErrors = (req, res, next) => {
 };
 
 export const validateSignup = [
+  body("name").trim().notEmpty().withMessage("Name is required."),
   body("email").trim().isEmail().withMessage("Please provide a valid email address.").normalizeEmail(),
   body("password").isString().isLength({ min: 6 }).withMessage("Password must be at least 6 characters long."),
   handleValidationErrors,

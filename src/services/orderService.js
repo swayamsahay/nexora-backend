@@ -8,9 +8,11 @@ const toOrderResponse = (order) => ({
   productId: order.productId,
   storeId: order.storeId,
   userId: order.userId,
+  items: order.items,
   quantity: order.quantity,
   unitPrice: order.unitPrice,
   totalAmount: order.totalAmount,
+  total: order.total,
   status: order.status,
   paymentId: order.paymentId,
   razorpayOrderId: order.razorpayOrderId,
@@ -87,9 +89,17 @@ export const createOrderForUser = async (userId, payload) => {
     productId: product._id,
     storeId: product.storeId,
     userId,
+    items: [
+      {
+        productId: product._id,
+        quantity: quantityNumber,
+        unitPrice,
+      },
+    ],
     quantity: quantityNumber,
     unitPrice,
     totalAmount,
+    total: totalAmount,
   });
 
   return toOrderResponse(order);

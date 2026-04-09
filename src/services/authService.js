@@ -6,20 +6,22 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const sanitizeUser = (user) => ({
   id: user._id,
+  name: user.name,
   email: user.email,
+  plan: user.plan,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
 
-export const registerUser = async (email, password) => {
-  if (!email || !password) {
-    const error = new Error("Email and password are required.");
+export const registerUser = async (name, email, password) => {
+  if (!name || !email || !password) {
+    const error = new Error("Name, email and password are required.");
     error.statusCode = 400;
     throw error;
   }
 
-  if (!email.trim() || !password.trim()) {
-    const error = new Error("Email and password cannot be empty.");
+  if (!name.trim() || !email.trim() || !password.trim()) {
+    const error = new Error("Name, email and password cannot be empty.");
     error.statusCode = 400;
     throw error;
   }
@@ -48,6 +50,7 @@ export const registerUser = async (email, password) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await User.create({
+    name: name.trim(),
     email: normalizedEmail,
     password: hashedPassword,
   });

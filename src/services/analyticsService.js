@@ -19,9 +19,17 @@ export const getOwnerAnalytics = async (userId) => {
         },
       },
       {
-        $group: {
+            totalRevenue: {
+              $sum: {
+                $ifNull: ["$total", "$totalAmount"],
+              },
+            },
           _id: null,
-          totalRevenue: { $sum: "$totalAmount" },
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$total", "$totalAmount"],
+            },
+          },
         },
       },
     ]),

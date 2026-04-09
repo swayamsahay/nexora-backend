@@ -11,6 +11,12 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { sendSuccess } from "../utils/apiResponse.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
+  console.log("[ORDER] Create order request", {
+    userId: req.user?.id,
+    productId: req.body?.productId,
+    quantity: req.body?.quantity,
+  });
+
   const order = await createOrderForUser(req.user.id, req.body);
   return sendSuccess(res, 201, { order }, "Order created successfully.");
 });
@@ -41,6 +47,10 @@ export const getMyOrders = asyncHandler(async (req, res) => {
 
 export const handleWebhook = async (req, res) => {
   try {
+    console.log("[PAYMENT] Razorpay webhook received", {
+      path: req.originalUrl,
+    });
+
     const signature = req.headers["x-razorpay-signature"];
     const rawBody = req.body;
 

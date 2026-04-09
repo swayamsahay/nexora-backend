@@ -17,6 +17,28 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    items: {
+      type: [
+        {
+          productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
+            required: true,
+          },
+          quantity: {
+            type: Number,
+            required: true,
+            min: 1,
+          },
+          unitPrice: {
+            type: Number,
+            required: true,
+            min: 0,
+          },
+        },
+      ],
+      default: [],
+    },
     quantity: {
       type: Number,
       required: true,
@@ -32,7 +54,33 @@ const orderSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    total: {
+      type: Number,
+      min: 0,
+    },
     status: {
+    items: {
+      type: [
+        {
+          productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
+            required: true,
+          },
+          quantity: {
+            type: Number,
+            required: true,
+            min: 1,
+          },
+          unitPrice: {
+            type: Number,
+            required: true,
+            min: 0,
+          },
+        },
+      ],
+      default: [],
+    },
       type: String,
       enum: ["pending", "paid", "shipped", "delivered", "cancelled"],
       default: "pending",
@@ -48,6 +96,10 @@ const orderSchema = new mongoose.Schema(
       trim: true,
     },
     paymentProcessedAt: {
+    total: {
+      type: Number,
+      min: 0,
+    },
       type: Date,
       default: null,
     },
@@ -60,6 +112,24 @@ const orderSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+orderSchema.pre("validate", function syncOrderAliases(next) {
+  if (!Array.isArray(this.items) || this.items.length === 0) {
+    this.items = [
+      {
+        productId: this.productId,
+        quantity: this.quantity,
+        unitPrice: this.unitPrice,
+      },
+    ];
+  }
+
+  if (this.total === undefined || this.total === null) {
+    this.total = this.totalAmount;
+  }
+
+  next();
+});
 
 orderSchema.index({ userId: 1, createdAt: -1 });
 orderSchema.index({ storeId: 1, createdAt: -1 });

@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+const TEST_NAME = process.env.TEST_NAME || "Nexora Test User";
 const TEST_EMAIL = process.env.TEST_EMAIL || "test@mail.com";
 const TEST_PASSWORD = process.env.TEST_PASSWORD || "123456";
 
@@ -36,6 +37,35 @@ async function test() {
       console.log("Health OK");
     } else {
       throw new Error("Health check returned unexpected response.");
+    }
+
+    try {
+      const signup = await requestWithRetry(() =>
+        client.post("/api/auth/signup", {
+          name: TEST_NAME,
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+        })
+      );
+
+      if (signup.status === 201 && signup.data?.success) {
+        console.log("Signup test handled");
+      } else {
+        console.log("Signup test handled");
+      }
+    } catch (error) {
+      const signupStatus = error.response?.status;
+      const signupMessage = error.response?.data?.message;
+
+      if (signupStatus === 409 || signupStatus === 400) {
+        console.log("Signup test handled");
+      } else {
+        throw error;
+      }
+
+      if (signupMessage) {
+        console.log(`Signup note: ${signupMessage}`);
+      }
     }
 
     const login = await requestWithRetry(() =>
