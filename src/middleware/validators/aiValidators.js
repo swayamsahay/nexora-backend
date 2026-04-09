@@ -21,3 +21,14 @@ export const validateGenerateDescription = [
   body("category").trim().notEmpty().withMessage("category is required."),
   handleValidationErrors,
 ];
+
+export const validateGenerateApp = [
+  body("prompt")
+    .trim()
+    .notEmpty()
+    .withMessage("prompt is required.")
+    .bail()
+    .isLength({ min: 10, max: 1000 })
+    .withMessage("Prompt must be between 10 and 1000 characters."),
+  handleValidationErrors,
+];
