@@ -26,37 +26,11 @@ const aiProjectSchema = new mongoose.Schema(
       default: "modern",
     },
     generatedData: {
-      store: {
-        name: String,
-        description: String,
-        theme: String,
-        category: String,
-        logo: {
-          type: String,
-          default: null,
-        },
-      },
-      layout: {
-        sections: [String],
-      },
-      products: [
-        {
-          name: String,
-          price: Number,
-          description: String,
-          category: String,
-          image: {
-            type: String,
-            default: null,
-          },
-        },
-      ],
-      pages: [String],
-      features: [String],
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
     customizations: {
-      type: Map,
-      of: String,
+      type: mongoose.Schema.Types.Mixed,
       default: {},
     },
     createdAt: {

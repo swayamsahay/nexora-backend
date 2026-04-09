@@ -2,10 +2,14 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { sendSuccess, createError } from "../utils/apiResponse.js";
 import { generateProductDescription, generateStoreTemplate } from "../services/aiService.js";
 import {
-  generateApp,
   saveAIProject,
   getUserProjects,
 } from "../services/aiBuilderService.js";
+import {
+  generateBackendProject,
+  generateDatabaseProject,
+  generatePhase4Project,
+} from "../services/aiPhase4Service.js";
 
 export const generateStore = asyncHandler(async (req, res) => {
   const { prompt } = req.body;
@@ -32,8 +36,8 @@ export const generateCompleteApp = asyncHandler(async (req, res) => {
   });
 
   try {
-    // Generate app structure
-    const generationResult = generateApp(prompt);
+    // Generate frontend, backend, and database structure
+    const generationResult = generatePhase4Project(prompt);
 
     // Save to database for history
     const project = await saveAIProject(userId, prompt, generationResult);
@@ -53,6 +57,20 @@ export const generateCompleteApp = asyncHandler(async (req, res) => {
     console.error("[AI Controller] Error generating app:", error.message);
     throw createError(error.message || "Failed to generate app", 400);
   }
+});
+
+export const generateBackend = asyncHandler(async (req, res) => {
+  const { prompt } = req.body;
+
+  const data = generateBackendProject(prompt);
+  return sendSuccess(res, 200, data, "Backend generated successfully.");
+});
+
+export const generateDatabase = asyncHandler(async (req, res) => {
+  const { prompt } = req.body;
+
+  const data = generateDatabaseProject(prompt);
+  return sendSuccess(res, 200, data, "Database schema generated successfully.");
 });
 
 /**

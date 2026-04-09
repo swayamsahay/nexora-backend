@@ -15,6 +15,9 @@ import orderRoutes from "./routes/orderRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import builderRoutes from "./routes/builderRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import devRoutes from "./routes/devRoutes.js";
+import threeDRoutes from "./routes/threeDRoutes.js";
+import publishRoutes from "./routes/publishRoutes.js";
 
 // Middleware
 import { apiRateLimiter } from "./middleware/rateLimiter.js";
@@ -72,6 +75,9 @@ app.use("/api/order", orderRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/builder", builderRoutes);
+app.use("/api/dev", devRoutes);
+app.use("/api/3d", threeDRoutes);
+app.use("/api", publishRoutes);
 app.use("/api/ai", aiRoutes);
 
 app.get("/", (req, res) => {

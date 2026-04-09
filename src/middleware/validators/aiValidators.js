@@ -32,3 +32,25 @@ export const validateGenerateApp = [
     .withMessage("Prompt must be between 10 and 1000 characters."),
   handleValidationErrors,
 ];
+
+export const validateGenerateBackend = [
+  body("prompt")
+    .trim()
+    .notEmpty()
+    .withMessage("prompt is required.")
+    .bail()
+    .isLength({ min: 10, max: 1000 })
+    .withMessage("Prompt must be between 10 and 1000 characters."),
+  handleValidationErrors,
+];
+
+export const validateGenerateDatabase = [
+  body("prompt")
+    .trim()
+    .notEmpty()
+    .withMessage("prompt is required.")
+    .bail()
+    .isLength({ min: 10, max: 1000 })
+    .withMessage("Prompt must be between 10 and 1000 characters."),
+  handleValidationErrors,
+];

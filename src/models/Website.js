@@ -31,6 +31,11 @@ const websiteSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    builderMode: {
+      type: String,
+      enum: ["normal", "3d"],
+      default: "normal",
+    },
     domain: {
       type: String,
       default: "",

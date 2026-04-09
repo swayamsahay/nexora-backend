@@ -3,11 +3,15 @@ import {
   generateDescription,
   generateStore,
   generateCompleteApp,
+  generateBackend,
+  generateDatabase,
   getAIProjects,
 } from "../controllers/aiController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import {
   validateGenerateDescription,
+  validateGenerateBackend,
+  validateGenerateDatabase,
   validateGenerateStore,
   validateGenerateApp,
 } from "../middleware/validators/aiValidators.js";
@@ -20,6 +24,8 @@ router.post("/generate-description", validateGenerateDescription, generateDescri
 
 // Protected endpoints (AI Builder)
 router.post("/generate-app", protect, validateGenerateApp, generateCompleteApp);
+router.post("/generate-backend", protect, validateGenerateBackend, generateBackend);
+router.post("/generate-database", protect, validateGenerateDatabase, generateDatabase);
 router.get("/projects", protect, getAIProjects);
 
 export default router;

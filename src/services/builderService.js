@@ -1,5 +1,6 @@
 import Store from "../models/Store.js";
 import Website from "../models/Website.js";
+import BuilderProject from "../models/BuilderProject.js";
 import { createError } from "../utils/apiResponse.js";
 
 const defaultLayout = {
@@ -32,6 +33,7 @@ const toWebsiteResponse = (website) => ({
   layout: website.layout,
   theme: website.theme,
   isPublished: website.isPublished,
+  builderMode: website.builderMode,
   domain: website.domain,
   createdAt: website.createdAt,
   updatedAt: website.updatedAt,
@@ -47,7 +49,7 @@ const ensureStoreOwnership = async (userId, storeId) => {
 };
 
 export const saveWebsiteLayout = async (userId, payload) => {
-  const { storeId, layout, theme, domain } = payload;
+  const { storeId, layout, theme, domain, builderMode } = payload;
 
   if (!storeId) {
     throw createError("storeId is required.", 400);
@@ -66,6 +68,7 @@ export const saveWebsiteLayout = async (userId, payload) => {
       store: storeId,
       layout: nextLayout,
       theme: nextTheme,
+      ...(builderMode ? { builderMode } : {}),
       ...(domain !== undefined ? { domain } : {}),
     },
     { new: true, upsert: true, setDefaultsOnInsert: true }
@@ -127,4 +130,146 @@ export const getPublishedWebsiteByStore = async (storeId) => {
   }
 
   return toWebsiteResponse(website);
+};
+
+const toProjectResponse = (project) => ({
+  id: project._id,
+  userId: project.userId,
+  name: project.name,
+  description: project.description,
+  type: project.type,
+  status: project.status,
+  config: project.config,
+  metadata: project.metadata,
+  tags: project.tags,
+  isPublished: project.isPublished,
+  createdAt: project.createdAt,
+  updatedAt: project.updatedAt,
+});
+
+export const createBuilderProject = async (userId, payload) => {
+  const { name, description, type, config, metadata, tags } = payload;
+
+  if (!name || !type) {
+    throw createError("name and type are required.", 400);
+  }
+
+  const project = await BuilderProject.create({
+    userId,
+    name,
+    description: description || "",
+    type,
+    config: config || {},
+    metadata: metadata || {},
+    tags: tags || [],
+    status: "draft",
+    isPublished: false,
+  });
+
+  return toProjectResponse(project);
+};
+
+export const getBuilderProject = async (userId, projectId) => {
+  if (!projectId) {
+    throw createError("projectId is required.", 400);
+  }
+
+  const project = await BuilderProject.findOne({ _id: projectId, userId });
+  if (!project) {
+    throw createError("Project not found.", 404);
+  }
+
+  return toProjectResponse(project);
+};
+
+export const updateBuilderProject = async (userId, projectId, payload) => {
+  if (!projectId) {
+    throw createError("projectId is required.", 400);
+  }
+
+  const updateData = {};
+  if (payload.name !== undefined) updateData.name = payload.name;
+  if (payload.description !== undefined) updateData.description = payload.description;
+  if (payload.config !== undefined) updateData.config = payload.config;
+  if (payload.metadata !== undefined) updateData.metadata = payload.metadata;
+  if (payload.tags !== undefined) updateData.tags = payload.tags;
+  if (payload.status !== undefined) updateData.status = payload.status;
+
+  const project = await BuilderProject.findOneAndUpdate(
+    { _id: projectId, userId },
+    updateData,
+    { new: true }
+  );
+
+  if (!project) {
+    throw createError("Project not found.", 404);
+  }
+
+  return toProjectResponse(project);
+};
+
+export const deleteBuilderProject = async (userId, projectId) => {
+  if (!projectId) {
+    throw createError("projectId is required.", 400);
+  }
+
+  const project = await BuilderProject.findOneAndDelete({
+    _id: projectId,
+    userId,
+  });
+
+  if (!project) {
+    throw createError("Project not found.", 404);
+  }
+
+  return { message: "Project deleted successfully" };
+};
+
+export const listBuilderProjects = async (userId, filters = {}) => {
+  const query = { userId };
+  if (filters.type) query.type = filters.type;
+  if (filters.status) query.status = filters.status;
+  if (filters.isPublished !== undefined) query.isPublished = filters.isPublished;
+  if (Array.isArray(filters.tags) && filters.tags.length > 0) {
+    query.tags = { "$in": filters.tags };
+  }
+
+  const projects = await BuilderProject.find(query).sort({ createdAt: -1 });
+  return projects.map(toProjectResponse);
+};
+
+export const publishBuilderProject = async (userId, projectId) => {
+  if (!projectId) {
+    throw createError("projectId is required.", 400);
+  }
+
+  const project = await BuilderProject.findOneAndUpdate(
+    { _id: projectId, userId },
+    { isPublished: true, status: "published" },
+    { new: true }
+  );
+
+  if (!project) {
+    throw createError("Project not found.", 404);
+  }
+
+  return toProjectResponse(project);
+};
+
+export const unpublishBuilderProject = async (userId, projectId) => {
+  if (!projectId) {
+    throw createError("projectId is required.", 400);
+  }
+
+  const project = await BuilderProject.findOneAndUpdate(
+    { _id: projectId, userId },
+    { isPublished: false, status: "draft" },
+    { new: true }
+  );
+
+  if (!project) {
+    throw createError("Project not found.", 404);
+  }
+
+  return toProjectResponse(project);
 };
