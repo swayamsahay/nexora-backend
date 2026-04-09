@@ -1,6 +1,14 @@
 import jwt from "jsonwebtoken";
 
-const resolveJwtSecret = () => process.env.JWT_SECRET || "dev_jwt_secret_change_me";
+const resolveJwtSecret = () => {
+  const jwtSecret = process.env.JWT_SECRET?.trim();
+
+  if (!jwtSecret) {
+    throw new Error("JWT_SECRET is required.");
+  }
+
+  return jwtSecret;
+};
 
 export const generateToken = (userId) => {
   return jwt.sign({ id: userId.toString() }, resolveJwtSecret(), {

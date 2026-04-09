@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { createError } from "../utils/apiResponse.js";
 import { getJwtSecret } from "../utils/token.js";
 
 export const protect = async (req, res, next) => {
@@ -7,21 +8,19 @@ export const protect = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      return res.status(401).json({ success: false, message: "Not authorized, token missing." });
+      return next(createError("Not authorized, token missing.", 401));
     }
 
     const [scheme, token] = authHeader.split(" ");
     if (scheme !== "Bearer" || !token) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Not authorized, invalid authorization header." });
+      return next(createError("Not authorized, invalid authorization header.", 401));
     }
 
     const decoded = jwt.verify(token, getJwtSecret());
 
     const user = await User.findById(decoded.id).select("-password");
     if (!user) {
-      return res.status(401).json({ success: false, message: "Not authorized, user not found." });
+      return next(createError("Not authorized, user not found.", 401));
     }
 
     req.user = {
@@ -31,6 +30,6 @@ export const protect = async (req, res, next) => {
 
     return next();
   } catch (error) {
-    return res.status(401).json({ success: false, message: "Not authorized, invalid token." });
+    return next(createError("Not authorized, invalid token.", 401));
   }
 };

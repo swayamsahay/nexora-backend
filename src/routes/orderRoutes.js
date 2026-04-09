@@ -8,15 +8,10 @@ import {
   verifyPayment,
 } from "../controllers/orderController.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { sanitizeInput } from "../middleware/sanitizeInput.js";
 
 const router = express.Router();
 
-// Webhook needs raw body so the signature can be verified exactly.
-router.post("/webhook", express.raw({ type: "application/json" }), handleWebhook);
-
-router.use(express.json());
-router.use(sanitizeInput);
+router.post("/webhook", handleWebhook);
 
 router.post("/", protect, createOrder);
 router.get("/me", protect, getMyOrders);
